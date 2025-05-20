@@ -1,90 +1,132 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
+import { Button, Form, Input } from "@heroui/react";
+import Link from "next/link";
 
 export default function RegisterPage() {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!email || !password || !username) {
+      setError("邮箱、密码和用户名都是必填项");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
     try {
-      const { data, error } = await supabase.auth.signUp({
+      // 1. 注册用户
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
       });
 
-      if (error) throw error;
+      if (authError) {
+        throw authError;
+      }
 
-      // 显示成功消息
-      alert("请检查您的邮箱以完成注册！");
+      if (authData.user) {
+        // 2. 创建用户资料
+        const { error: profileError } = await supabase.from("profiles").insert({
+          id: authData.user.id,
+          username: username,
+          avatar_url: null,
+        });
+
+        if (profileError) {
+          throw profileError;
+        }
+      }
+
       router.push("/login");
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      console.error("注册错误:", error);
+      setError(error instanceof Error ? error.message : "注册失败");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 transition-all duration-300">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            创建新账户
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
+            创建账号
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleRegister}>
-          {error && (
-            <div className="bg-red-50 text-red-500 p-3 rounded">{error}</div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                电子邮箱
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
+
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900 border-l-4 border-red-400 text-red-700 dark:text-red-300 p-4 mb-6">
+            <p>{error}</p>
+          </div>
+        )}
+
+        <Form onSubmit={handleRegister} className="mt-8 space-y-6">
+          <div className="rounded-md w-full space-y-px">
+            <div className="mb-4">
+              <Input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="用户名"
+                className="w-full"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="电子邮箱"
+              />
+            </div>
+            <div className="mb-4">
+              <Input
+                type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                placeholder="邮箱地址"
+                className="w-full"
+                required
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                密码
-              </label>
-              <input
-                id="password"
-                name="password"
+              <Input
                 type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="密码"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                placeholder="密码"
+                className="w-full"
+                required
               />
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          <Button
+            type="submit"
+            color="primary"
+            className="w-full"
+            disabled={loading}
+          >
+            {loading ? "注册中..." : "创建账号"}
+          </Button>
+
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <div className="mr-2">已有账号？</div>
+            <Link
+              href="/login"
+              className="font-medium text-blue-600 hover:text-blue-500"
             >
-              注册
-            </button>
-          </div>
-        </form>
+              登录
+            </Link>
+          </p>
+        </Form>
       </div>
     </div>
   );

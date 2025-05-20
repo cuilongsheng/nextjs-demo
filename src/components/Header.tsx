@@ -1,48 +1,93 @@
 "use client";
-import { GetServerSideProps } from "next";
-import { createServerClient } from "@supabase/ssr";
-import { useSession, signOut } from "next-auth/react";
-import { Button } from "@heroui/react";
-import { supabase } from "@/lib/supabase";
 
-interface User {
-  id: string;
-  email: string;
-}
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  return {
-    props: {
-      session: session as { user: User } | null, // 传递到客户端
-    },
-  };
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { User } from "@supabase/supabase-js";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Button,
+} from "@heroui/react";
+export const AcmeLogo = () => {
+  return (
+    <svg fill="none" height="36" viewBox="0 0 32 32" width="36">
+      <path
+        clipRule="evenodd"
+        d="M17.6482 10.1305L15.8785 7.02583L7.02979 22.5499H10.5278L17.6482 10.1305ZM19.8798 14.0457L18.11 17.1983L19.394 19.4511H16.8453L15.1056 22.5499H24.7272L19.8798 14.0457Z"
+        fill="currentColor"
+        fillRule="evenodd"
+      />
+    </svg>
+  );
 };
+export default function Header() {
+  const router = useRouter();
+  const supabase = createClientComponentClient();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-export default function Home({ session }: { session: { user: User } | null }) {
-  const { data: clientSession } = useSession();
-  const user = clientSession?.user || session?.user;
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      setIsLoading(false);
+    };
+
+    getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {user ? (
-        <Button
-          onPress={() => signOut()}
-          className="bg-red-500 text-white px-4 py-2 rounded"
-        >
-          退出登录
-        </Button>
-      ) : (
-        <Button
-          href="/login"
-          className="bg-primary text-white px-4 py-2 rounded"
-        >
-          登录
-        </Button>
-      )}
-    </div>
+    <Navbar className="Header-container">
+      <NavbarBrand>
+        <AcmeLogo />
+        <p className="font-bold text-inherit">博客系统</p>
+      </NavbarBrand>
+      <NavbarContent justify="end">
+        <NavbarItem>
+          <Button
+            onPress={() => {
+              if (user) {
+                router.push("/articles/new");
+              } else {
+                router.push("/login");
+              }
+            }}
+            color="primary"
+            className="w-full md:w-auto mr-10"
+            variant="ghost"
+            href="/articles/new"
+          >
+            新建博客
+          </Button>
+        </NavbarItem>
+        <NavbarItem className="hidden lg:flex">
+          {!user ? <Link href="/login">Login</Link> : null}
+        </NavbarItem>
+        <NavbarItem>
+          <Button color="primary" isLoading={isLoading} onPress={handleSignOut}>
+            Sign Up
+          </Button>
+        </NavbarItem>
+      </NavbarContent>
+    </Navbar>
   );
 }

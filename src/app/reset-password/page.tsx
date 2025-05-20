@@ -18,8 +18,8 @@ export default function ResetPasswordPage() {
       if (error) throw error;
 
       setSuccess(true);
-    } catch (error: any) {
-      setError(error.message);
+    } catch (error: unknown) {
+      setError(error instanceof Error ? error.message : "重置密码失败");
     }
   };
 

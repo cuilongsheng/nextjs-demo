@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { supabase } from "@/lib/supabase";
 
-// 获取当前用户信息
+// 获取当前用户信息ß
 export async function GET() {
-  const supabase = createSupabaseServerClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

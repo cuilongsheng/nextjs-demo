@@ -1,5 +1,11 @@
 // 格式化时间戳
-export function formatTimestamp(timestamp: string | undefined) {
-  if (!timestamp) return "";
-  return new Date(timestamp).toLocaleDateString();
-}
+export const formatTimestamp = (timestamp: string): string => {
+  const date = new Date(timestamp);
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+};

@@ -1,111 +1,91 @@
 "use client";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+// import { supabase } from "@/lib/client";
 import { useRouter } from "next/navigation";
+import { Button, Form, Input } from "@heroui/react";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function LoginPage() {
+  const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsLoading(true);
     setError(null);
 
     try {
-      console.log("尝试登录:", { email });
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        console.error("登录错误:", error);
-        if (error.message === "Invalid login credentials") {
-          throw new Error("邮箱或密码错误，请检查后重试");
-        }
-        throw error;
-      }
-
-      console.log("登录成功:", data);
-      router.push("/articles");
-    } catch (error: any) {
-      console.error("登录异常:", error);
-      setError(error.message);
+      await login(email, password);
+      router.push("/");
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error("登录失败"));
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 md:p-8 transition-all duration-300">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            登录您的账户
+          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
+            登录
           </h2>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          {error && (
-            <div className="bg-red-50 text-red-500 p-3 rounded">{error}</div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="sr-only">
-                电子邮箱
-              </label>
-              <input
-                id="email"
-                name="email"
+
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900 border-l-4 border-red-400 text-red-700 dark:text-red-300 p-4 mb-6">
+            <p>{error.message}</p>
+          </div>
+        )}
+
+        <Form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          <div className="rounded-md -space-y-px w-full">
+            <div className="mb-4">
+              <Input
                 type="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="电子邮箱"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
+                placeholder="邮箱"
+                className="w-full"
+                required
               />
             </div>
             <div>
-              <label htmlFor="password" className="sr-only">
-                密码
-              </label>
-              <input
-                id="password"
-                name="password"
+              <Input
                 type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="密码"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
+                placeholder="密码"
+                className="w-full"
+                required
               />
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
-              disabled={loading}
-            >
-              {loading ? "登录中..." : "登录"}
-            </button>
-          </div>
+          <Button
+            type="submit"
+            color="primary"
+            className="w-full"
+            disabled={isLoading}
+          >
+            {isLoading ? "登录中..." : "登录"}
+          </Button>
 
-          <div className="text-sm text-center">
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <div className="mr-2">没有账号？</div>
             <a
               href="/register"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-medium text-blue-600 hover:text-blue-500"
             >
-              还没有账户？立即注册
+              注册
             </a>
-          </div>
-        </form>
+          </p>
+        </Form>
       </div>
     </div>
   );
