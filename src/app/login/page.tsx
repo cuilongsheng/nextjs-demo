@@ -76,15 +76,15 @@ export default function LoginPage() {
             {isLoading ? "登录中..." : "登录"}
           </Button>
 
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
-            <div className="mr-2">没有账号？</div>
+          <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+            <span>没有账号？</span>{" "}
             <a
               href="/register"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               注册
             </a>
-          </p>
+          </div>
         </Form>
       </div>
     </div>

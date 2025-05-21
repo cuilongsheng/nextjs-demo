@@ -1,11 +1,21 @@
 const API_URL = "/api";
 
 export async function getArticles(page = 1, limit = 20) {
-  const response = await fetch(`/api/articles?page=${page}&limit=${limit}`);
-  if (!response.ok) {
-    throw new Error("获取文章列表失败");
+  try {
+    console.log(`正在获取文章列表，页码: ${page}, 每页数量: ${limit}`);
+    const response = await fetch(`/api/articles?page=${page}&limit=${limit}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`获取文章列表失败 (${response.status}): ${errorText}`);
+      throw new Error(`获取文章列表失败: ${response.statusText}`);
+    }
+    const data = await response.json();
+    console.log(`获取文章成功, 数量: ${data?.length || 0}`);
+    return data || [];
+  } catch (error) {
+    console.error("获取文章列表出错:", error);
+    throw error;
   }
-  return response.json();
 }
 
 export async function getArticle(id: string) {

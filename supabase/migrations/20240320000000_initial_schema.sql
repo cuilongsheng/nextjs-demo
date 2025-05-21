@@ -47,6 +47,9 @@ CREATE POLICY "用户可以创建自己的profile"
   WITH CHECK (auth.uid() = id);
 
 -- articles表的策略
+CREATE POLICY "允许公共读取文章" ON articles
+FOR SELECT USING (true);
+
 CREATE POLICY "任何人都可以查看文章"
   ON articles FOR SELECT
   USING (true);

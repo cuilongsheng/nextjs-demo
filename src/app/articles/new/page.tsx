@@ -9,10 +9,10 @@ import {
   Chip,
   Form,
   Input,
-  Textarea,
 } from "@heroui/react";
 import { useUser } from "@/hooks/useUser";
 import Link from "next/link";
+import { CodeEditor } from "@/components/ui/CodeEditor";
 
 export default function NewArticlePage() {
   const router = useRouter();
@@ -105,7 +105,6 @@ export default function NewArticlePage() {
           />
 
           <Input
-            isRequired
             type="text"
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
@@ -129,17 +128,14 @@ export default function NewArticlePage() {
             ))}
           </div>
 
-          <Textarea
-            isRequired
+          <CodeEditor
             value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            placeholder="请输入文章内容"
-            className="w-full"
-            required
+            onChange={(value) => setContent(value)}
+            height="300px"
             label="内容"
             labelPlacement="outside"
-            size="lg"
+            className="w-full"
+            language="markdown"
           />
 
           <div className="w-full flex space-x-4 justify-end">

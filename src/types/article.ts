@@ -11,6 +11,7 @@ export interface Profile {
   id: string;
   username: string;
   avatar_url: string | null;
+  email?: string;
 }
 
 export type Article = {
@@ -21,7 +22,7 @@ export type Article = {
   created_at: string;
   updated_at: string;
   tags?: string[];
-  author: User;
+  author: Profile | User;
 };
 
 export type ArticleFormData = {

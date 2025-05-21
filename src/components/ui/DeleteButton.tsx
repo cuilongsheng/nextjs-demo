@@ -24,11 +24,12 @@ export default function DeleteButton({
   return (
     <>
       <Button
+        {...props}
         onPress={onOpen}
         color="danger"
-        size={props.size ? props.size : "sm"}
         variant="ghost"
-        {...props}
+        size={props.size ? props.size : "sm"}
+        className="text-rose-400 dark:text-rose-300 hover:text-rose-500 dark:hover:text-rose-400 border-none"
       >
         删除
       </Button>
@@ -46,10 +47,14 @@ export default function DeleteButton({
                 <p>{description}</p>
               </ModalBody>
               <ModalFooter>
-                <Button color="danger" variant="light" onPress={onClose}>
+                <Button color="default" variant="light" onPress={onClose}>
                   取消
                 </Button>
-                <Button color="primary" onPress={onDelete}>
+                <Button
+                  color="danger"
+                  onPress={onDelete}
+                  className="bg-rose-400 hover:bg-rose-500"
+                >
                   确认
                 </Button>
               </ModalFooter>

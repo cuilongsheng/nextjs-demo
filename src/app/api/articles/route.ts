@@ -2,26 +2,29 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
 import { Article, ArticleError } from "@/types/article";
+import { supabaseAdmin } from "@/lib/supabase";
 
 // 获取文章列表
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // 创建一个客户端连接，尝试使用cookies
     const cookieStore = await cookies();
-    const supabase = createRouteHandlerClient({
+    const supabaseClient = createRouteHandlerClient({
       cookies: () => cookieStore as unknown as ReturnType<typeof cookies>,
     });
 
-    const { data: articles, error } = await supabase
+    // 尝试查询文章
+    const { data: articles, error } = await supabaseClient
       .from("articles")
       .select("*, author:profiles(*)")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      throw error;
+    // 如果查询成功，直接返回结果
+    if (!error) {
+      return NextResponse.json(articles || []);
     }
-
-    return NextResponse.json(articles);
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "获取文章列表失败";

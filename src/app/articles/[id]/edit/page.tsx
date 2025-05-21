@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
-// import { CodeEditor } from "@/components/ui/CodeEditor";
+import { CodeEditor } from "@/components/ui/CodeEditor";
 import { getArticle, updateArticle } from "@/services/articleService";
 import { Article } from "@/types/article";
 import { useUser } from "@/hooks/useUser";
@@ -15,7 +15,6 @@ import {
   Form,
   Input,
   Spinner,
-  Textarea,
 } from "@heroui/react";
 import Link from "next/link";
 
@@ -133,7 +132,6 @@ export default function EditArticlePage({ params }: PageProps) {
             />
 
             <Input
-              isRequired
               type="text"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
@@ -157,17 +155,14 @@ export default function EditArticlePage({ params }: PageProps) {
               ))}
             </div>
 
-            <Textarea
-              isRequired
+            <CodeEditor
               value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={10}
-              placeholder="请输入文章内容"
-              className="w-full"
-              required
+              onChange={(value) => setContent(value)}
+              height="300px"
               label="内容"
               labelPlacement="outside"
-              size="lg"
+              className="w-full"
+              language="markdown"
             />
 
             <div className="w-full flex space-x-4 justify-end">

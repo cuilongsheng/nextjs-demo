@@ -10,8 +10,9 @@ import { getArticles } from "@/services/articleService";
 import { Article } from "@/types/article";
 import { useUser } from "@/hooks/useUser";
 import BlogCard from "@/components/BlogCard";
+import { useRouter } from "next/navigation";
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 20;
 
 export default function HomePage() {
   const { user } = useUser();
@@ -19,9 +20,9 @@ export default function HomePage() {
   const [error, setError] = useState<Error | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-
+  const router = useRouter();
   const fetchArticles = async (pageNum: number) => {
     try {
       setIsLoading(true);
@@ -31,9 +32,12 @@ export default function HomePage() {
       } else {
         setArticles((prev) => [...prev, ...data]);
       }
-      setHasMore(data.length === ITEMS_PER_PAGE);
+      setHasMore(data.length > 0 && data.length === ITEMS_PER_PAGE);
     } catch (err) {
       setError(err instanceof Error ? err : new Error("获取文章列表失败"));
+      if (!user) {
+        router.push("/login");
+      }
     } finally {
       setIsLoading(false);
       setIsInitialLoading(false);
@@ -73,16 +77,24 @@ export default function HomePage() {
             </Alert>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {articles.map((article) => (
-              <BlogCard
-                key={article.id}
-                blog={article}
-                session={user}
-                onDelete={() => fetchArticles(page)}
-              />
-            ))}
-          </div>
+          {articles.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {articles.map((article) => (
+                <BlogCard
+                  key={article.id}
+                  blog={article}
+                  session={user}
+                  onDelete={() => fetchArticles(page)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-gray-500 dark:text-gray-400 text-small">
+                暂无文章，请登录后发布文章
+              </p>
+            </div>
+          )}
 
           {hasMore && (
             <div className="mt-8 text-center">

@@ -173,28 +173,28 @@ export default function ArticlePage({ params }: ArticlePageProps) {
       </div>
       {article ? (
         <>
-          <article className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 mt-6">
-            <h1 className="text-base font-bold text-gray-900 dark:text-white mb-4">
+          <article className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden transition-all duration-300 mt-6 p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               {article.title}
             </h1>
-            <div className="mb-4 flex flex-wrap gap-2">
+            <div className="mb-6 flex flex-wrap gap-2">
               {article.tags?.map((tag: string) => (
-                <Chip color="secondary" key={tag} variant="solid">
+                <Chip color="secondary" key={tag} variant="flat">
                   {tag}
                 </Chip>
               ))}
             </div>
-            <pre className="prose max-w-none dark:prose-invert text-gray-700 dark:text-gray-300">
+            <div className="prose max-w-none dark:prose-invert text-gray-700 dark:text-gray-300 border-t border-b border-gray-200 dark:border-gray-700 py-6 my-4">
               {article.content}
-            </pre>
+            </div>
 
-            <div className="text-sm text-gray-500 dark:text-gray-400 text-right">
-              {new Date(article.created_at).toLocaleDateString()}
+            <div className="text-sm text-gray-500 dark:text-gray-400 text-right mt-4">
+              发布于: {new Date(article.created_at).toLocaleDateString()}
             </div>
           </article>
 
-          <div className="rounded-[8px] mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 md:p-4 transition-all duration-300">
-            <h4 className="text-base font-bold text-gray-900 dark:text-white mb-6">
+          <div className="rounded-xl mt-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6 transition-all duration-300 shadow-sm">
+            <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
               评论
             </h4>
 

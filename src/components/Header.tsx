@@ -59,26 +59,28 @@ export default function Header() {
     <Navbar className="Header-container">
       <NavbarBrand>
         <AcmeLogo />
-        <p className="font-bold text-inherit">博客系统</p>
+        <p className="text-lgfont-bold text-inherit">博客系统</p>
       </NavbarBrand>
       <NavbarContent justify="end">
-        <NavbarItem>
-          <Button
-            onPress={() => {
-              if (user) {
-                router.push("/articles/new");
-              } else {
-                router.push("/login");
-              }
-            }}
-            color="primary"
-            className="w-full md:w-auto mr-10"
-            variant="ghost"
-            href="/articles/new"
-          >
-            新建博客
-          </Button>
-        </NavbarItem>
+        {user ? (
+          <NavbarItem>
+            <Button
+              onPress={() => {
+                if (user) {
+                  router.push("/articles/new");
+                } else {
+                  router.push("/login");
+                }
+              }}
+              color="primary"
+              className="w-full md:w-auto mr-4"
+              variant="light"
+              href="/articles/new"
+            >
+              新建博客
+            </Button>
+          </NavbarItem>
+        ) : null}
         <NavbarItem className="hidden lg:flex">
           {!user ? <Link href="/login">Login</Link> : null}
         </NavbarItem>
