@@ -133,7 +133,6 @@ export default function NewArticlePage() {
             onChange={(value) => setContent(value)}
             height="300px"
             label="内容"
-            labelPlacement="outside"
             className="w-full"
             language="markdown"
           />

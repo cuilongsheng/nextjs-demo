@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { twMerge } from "tailwind-merge";
 
@@ -31,8 +31,10 @@ export const CodeEditor = ({
   height = "300px",
   label,
 }: CodeEditorProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorRef = useRef<any>(null);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditorMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
 

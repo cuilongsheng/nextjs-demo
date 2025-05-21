@@ -2,12 +2,10 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
-import { createClient } from "@supabase/supabase-js";
 import { Article, ArticleError } from "@/types/article";
-import { supabaseAdmin } from "@/lib/supabase";
 
 // 获取文章列表
-export async function GET(request: Request) {
+export async function GET() {
   try {
     // 创建一个客户端连接，尝试使用cookies
     const cookieStore = await cookies();
